@@ -5,14 +5,14 @@ on:
     branches:
       - "**"
     paths:
-      - 'Px**/**'
+      - 'Px*/**'
       - 'Dockerfile'
       - '.github/workflows/dapla-lab-ci.yml'
     tags:
       - "*"
   pull_request:
     paths:
-      - 'PxWeb/**'
+      - 'Px*/**'
       - 'Dockerfile'
       - '.github/workflows/dapla-lab-ci.yml'
 
