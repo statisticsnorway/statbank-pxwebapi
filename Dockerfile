@@ -1,12 +1,16 @@
 FROM mcr.microsoft.com/dotnet/aspnet:6.0-alpine AS base
 WORKDIR /app
-RUN apk add --no-cache icu-libs
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 EXPOSE 8080
+
+ENV DOTNET_EnableDiagnostics=0
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 ENV ASPNETCORE_URLS=http://*:8080
 
-#RUN adduser -u 1000 --disabled-password --gecos "" appuser && chown -R appuser /app
-#USER appuser
+RUN apk add --no-cache icu-libs
+# Creates a non-root user with an explicit UID and adds permission to access the /app folder
+# For more info, please refer to https://aka.ms/vscode-docker-dotnet-configure-containers
+RUN adduser -u 1000 --disabled-password --gecos "" appuser && chown -R appuser /app
+USER 1000
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine  AS build
 WORKDIR /src
