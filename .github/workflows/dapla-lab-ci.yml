@@ -17,7 +17,7 @@ on:
       - '.github/workflows/dapla-lab-ci.yml'
 
 env:
-  REGISTRY: europe-north1-docker.pkg.dev/artifact-registry-5n/dapla-lab-docker/onyxia
+  REGISTRY: europe-north1-docker.pkg.dev/${{ secrets.GAR_PROJECT_ID }}/dapla-lab-docker/onyxia
   IMAGE: statbank-pxwebapi
   TAG: ${{ github.ref_name }}-${{ github.sha }}
 
@@ -33,8 +33,8 @@ jobs:
         name: "Authenticate to Google Cloud"
         uses: "google-github-actions/auth@v2.1.1"
         with:
-          workload_identity_provider: "projects/848539402404/locations/global/workloadIdentityPools/gh-actions/providers/gh-actions"
-          service_account: "gh-actions-dapla-lab@artifact-registry-5n.iam.gserviceaccount.com"
+          workload_identity_provider: "projects/${{ secrets.GAR_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/gh-actions/providers/gh-actions"
+          service_account: "gh-actions-dapla-lab@${{ secrets.GAR_PROJECT_ID }}.iam.gserviceaccount.com"
           token_format: "access_token"
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
