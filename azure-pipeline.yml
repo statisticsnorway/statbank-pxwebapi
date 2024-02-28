@@ -10,7 +10,7 @@ resources:
   repositories:
     - repository: templates
       type: github
-      ref: refs/tags/1.1.45
+      ref: refs/tags/1.1.47
       name: statisticsnorway/azure-pipelines-templates
       endpoint: github-Statistikkbanken
 
