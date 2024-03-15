@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
+
 using PCAxis.Paxiom;
-using PCAxis.Serializers;
-using System.IO;
-using System.Net.Sockets;
 
 namespace PxWeb.Code.Api2.Serialization
 {

@@ -1,16 +1,17 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using Px.Abstractions.Interfaces;
 using Px.Search;
-using PxWeb.Api2.Server.Models;
-using PxWeb.Config.Api2;
-using Swashbuckle.AspNetCore.Annotations;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+
 using PxWeb.Code.BackgroundWorker;
-using System.Text.RegularExpressions;
+
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace PxWeb.Controllers.Api2.Admin
 {
@@ -32,7 +33,8 @@ namespace PxWeb.Controllers.Api2.Admin
             _pxApiConfigurationService = pxApiConfigurationService;
             _logger = logger;
             _backgroundWorkerQueue = backgroundWorkerQueue;
-            string id = GetType().FullName;
+            System.Type tempType = GetType();
+            string id = (tempType.FullName != null) ? tempType.FullName : "GetType_has_no_FullName";
             _responseState = stateProvider.Load(id);
         }
 
@@ -66,7 +68,7 @@ namespace PxWeb.Controllers.Api2.Admin
                     }
 
                     Indexer indexer = new Indexer(_dataSource, _backend, _logger);
-                    indexer.IndexDatabase(languages);
+                    await Task.Run(() => indexer.IndexDatabase(languages), token);
                 }
                 catch (System.Exception ex)
                 {
@@ -121,7 +123,7 @@ namespace PxWeb.Controllers.Api2.Admin
                     }
 
                     Indexer indexer = new Indexer(_dataSource, _backend, _logger);
-                    indexer.UpdateTableEntries(tableList, languages);
+                    await Task.Run(() => indexer.UpdateTableEntries(tableList, languages), token);
                 }
                 catch (System.Exception ex)
                 {

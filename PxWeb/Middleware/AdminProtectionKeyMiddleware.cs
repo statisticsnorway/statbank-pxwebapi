@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using PxWeb.Config.Api2;
-using System.Threading.Tasks;
 
 namespace PxWeb.Middleware
 {

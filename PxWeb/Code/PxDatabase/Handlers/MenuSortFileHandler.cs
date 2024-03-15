@@ -1,9 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using PxWeb.Config.Api2;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace PXWeb.Database
 {
@@ -12,13 +7,13 @@ namespace PXWeb.Database
     /// </summary>
     public class MenuSortFileHandler : IItemHandler
     {
-        private ILogger _logger;
+        private readonly ILogger _logger;
         private readonly PxApiConfigurationOptions _configOptions;
 
         public MenuSortFileHandler(PxApiConfigurationOptions configOptions, ILogger logger)
         {
             _configOptions = configOptions;
-            _logger = logger;   
+            _logger = logger;
         }
 
         #region IItemHandler Members
@@ -58,7 +53,7 @@ namespace PXWeb.Database
         /// If the alias file do not have a language specified in the name then the 
         /// default language specified in the settings will be used
         /// </remarks>
-        public object Handle(string path, DatabaseLogger logger)
+        public object? Handle(string path, DatabaseLogger logger)
         {
             string fileName = System.IO.Path.GetFileName(path);
             int splittIndex = fileName.LastIndexOf('.');

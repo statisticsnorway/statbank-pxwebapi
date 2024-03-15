@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Xml;
+
 using Microsoft.Extensions.Logging;
+
 using PCAxis.Menu;
+
 using Px.Abstractions.Interfaces;
+
 using PxWeb.Code.Api2.DataSource.Cnmm;
-using PxWeb.Config.Api2;
-using PxWeb.Controllers.Api2;
 
 namespace PxWeb.Code.Api2.DataSource.PxFile
 {
@@ -23,35 +23,36 @@ namespace PxWeb.Code.Api2.DataSource.PxFile
             _hostingEnvironment = hostingEnvironment;
             _logger = logger;
         }
-        
+
         public Dictionary<string, ItemSelection> GetMenuLookup(string language)
         {
             var menuLookup = new Dictionary<string, ItemSelection>();
 
+            if (!LanguageUtil.HasValidLanguageCodePattern(language))
+            {
+                _logger.LogWarning($"Unsupported language: {LanguageUtil.SanitizeLangueCode(language)}");
+                return menuLookup;
+            }
+
+            language = LanguageUtil.SanitizeLangueCode(language);
+
             try
             {
-                string webRootPath = _hostingEnvironment.RootPath;
-                string xmlFilePath = Path.Combine(_hostingEnvironment.RootPath, "Database", "Menu.xml");
-
-                XmlDocument xdoc = new XmlDocument();
-
-                if (System.IO.File.Exists(xmlFilePath))
-                {
-                    xdoc.Load(xmlFilePath);
-                }
+                var menuXmlFile = new MenuXmlFile(_hostingEnvironment);
+                XmlDocument xdoc = menuXmlFile.GetLanguageAsXmlDocument(language);
 
                 // Add Menu levels to lookup table
-                string xpath = string.Format("//Language [@lang='{0}']//MenuItem", language);
+                string xpath = "//MenuItem";
                 AddMenuItemsToMenuLookup(xdoc, menuLookup, xpath);
 
                 // Add Tables to lookup table
-                xpath = string.Format("//Language [@lang='{0}']//Link", language);
+                xpath = "//Link";
                 AddTablesToMenuLookup(xdoc, menuLookup, xpath);
             }
 
             catch (Exception e)
             {
-                _logger.LogError($"Error loading MenuLookup table for language {language}", e);
+                _logger.LogError($"Error loading MenuLookup table for language {LanguageUtil.SanitizeLangueCode(language)}", e);
             }
 
             return menuLookup;

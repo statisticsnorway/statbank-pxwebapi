@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System;
-
-namespace PxWeb.Code.Api2.NewtonsoftConfiguration
+﻿namespace PxWeb.Code.Api2.NewtonsoftConfiguration
 {
     /// <summary>
     /// This class is used together with BaseFirstContractResolver to control the order of object properties
@@ -9,7 +6,7 @@ namespace PxWeb.Code.Api2.NewtonsoftConfiguration
     /// </summary>
     public static class TypeExtensions
     {
-        public static IEnumerable<Type> BaseTypesAndSelf(this Type type)
+        public static IEnumerable<Type> BaseTypesAndSelf(this Type? type)
         {
             while (type != null)
             {

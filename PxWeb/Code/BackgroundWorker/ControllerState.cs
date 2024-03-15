@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Text.Json;
 
 namespace PxWeb.Code.BackgroundWorker
 {
     public class ControllerState : IControllerState
     {
-        private string _id;
-        private string _fileSaveLocation;
-        private ControllerStateData _data;
+        private readonly string _id;
+        private readonly string _fileSaveLocation;
+        private readonly ControllerStateData _data;
 
         public ControllerStateData Data { get { return _data; } }
 
@@ -19,7 +17,7 @@ namespace PxWeb.Code.BackgroundWorker
             _id = id;
             _fileSaveLocation = fileSaveLocation;
             _data = data ?? new ControllerStateData();
-            
+
         }
 
         public void AddEvent(Event e)

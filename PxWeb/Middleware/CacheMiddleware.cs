@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
+﻿using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Memory;
-using System.IO;
-using System;
-using PxWeb.Config.Api2;
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+
 using PxWeb.Code.Api2.Cache;
 
 namespace PxWeb.Middleware
@@ -12,9 +11,9 @@ namespace PxWeb.Middleware
     public class CacheMiddleware
     {
         private readonly RequestDelegate _next;
-        private string _cacheLock = "lock";
-        CacheMiddlewareConfigurationOptions _configuration;
-        private TimeSpan _cacheTime;
+        private readonly string _cacheLock = "lock";
+        readonly CacheMiddlewareConfigurationOptions _configuration;
+        private readonly TimeSpan _cacheTime;
 
         public CacheMiddleware(RequestDelegate next, ICacheMiddlewareConfigurationService cacheMiddlewareConfigurationService)
         {

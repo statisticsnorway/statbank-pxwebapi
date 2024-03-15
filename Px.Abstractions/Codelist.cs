@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-
-namespace Px.Abstractions
+﻿namespace Px.Abstractions
 {
     public class Codelist
     {
@@ -36,6 +29,13 @@ namespace Px.Abstractions
         public string Code { get; set; }
         public string Label { get; set; }
         public List<string> ValueMap { get; set; }
+
+        public CodelistValue(string code, string label)
+        {
+            Code = code;
+            Label = label;
+            ValueMap = new List<string>();
+        }
     }
 
 }

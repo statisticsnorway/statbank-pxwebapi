@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Px.Search
+﻿namespace Px.Search
 {
+    /// <summary>
+    /// SearchEngineReader
+    /// </summary>
     public interface ISearcher
     {
         SearchResultContainer Find(string? query, int pageSize, int pageNumber, int? pastdays, bool includediscontinued = false);

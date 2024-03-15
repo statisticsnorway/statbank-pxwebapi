@@ -1,12 +1,4 @@
-﻿using Lucene.Net.Analysis.Standard;
-using Lucene.Net.Index;
-using Lucene.Net.Search;
-using Lucene.Net.Store;
-using Lucene.Net.Util;
-using Lucene.Net.QueryParsers.Classic;
-using Lucene.Net.Documents;
-using Lucene.Net.Queries;
-using Lucene.Net.Analysis;
+﻿
 
 namespace Px.Search.Lucene
 {
@@ -113,7 +105,7 @@ namespace Px.Search.Lucene
         /// <returns></returns>
         public SearchResult FindTable(string tableId)
         {
-            
+
             string[] field = new[] { SearchConstants.SEARCH_FIELD_SEARCHID };
             LuceneVersion luceneVersion = LuceneAnalyzer.luceneVersion;
             Query luceneQuery;
@@ -126,7 +118,7 @@ namespace Px.Search.Lucene
 
             Document doc = _indexSearcher.Doc(topDocs.ScoreDocs[0].Doc);
             return GetSearchResult(doc);
-                      
+
         }
 
         /// <summary>
@@ -162,7 +154,7 @@ namespace Px.Search.Lucene
             searchResult.LastPeriod = doc.Get(SearchConstants.SEARCH_FIELD_LASTPERIOD);
             searchResult.Tags = doc.Get(SearchConstants.SEARCH_FIELD_TAGS).Split(" ");
             searchResult.Updated = String.IsNullOrEmpty(doc.Get(SearchConstants.SEARCH_FIELD_UPDATED)) ? null : DateTools.StringToDate(doc.Get(SearchConstants.SEARCH_FIELD_UPDATED));
-            searchResult.Label = doc.Get(SearchConstants.SEARCH_FIELD_TITLE);            
+            searchResult.Label = doc.Get(SearchConstants.SEARCH_FIELD_TITLE);
 
             return searchResult;
         }
@@ -177,7 +169,7 @@ namespace Px.Search.Lucene
 
             // Default fields
             fields = new[] { SearchConstants.SEARCH_FIELD_DOCID,
-                                SearchConstants.SEARCH_FIELD_SEARCHID,                                
+                                SearchConstants.SEARCH_FIELD_SEARCHID,
                                 SearchConstants.SEARCH_FIELD_UPDATED,
                                 SearchConstants.SEARCH_FIELD_MATRIX,
                                 SearchConstants.SEARCH_FIELD_TITLE,

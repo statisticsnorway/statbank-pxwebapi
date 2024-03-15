@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using PxWeb.Config.Api2;
+﻿using Microsoft.Extensions.Logging;
 
 namespace PXWeb.Database
 {
@@ -13,7 +7,7 @@ namespace PXWeb.Database
     /// </summary>
     public class AliasFileHandler : IItemHandler
     {
-        private ILogger _logger;
+        private readonly ILogger _logger;
         private readonly PxApiConfigurationOptions _configOptions;
 
         public AliasFileHandler(PxApiConfigurationOptions configOptions, ILogger logger)
@@ -59,7 +53,7 @@ namespace PXWeb.Database
         /// If the alias file do not have a language specified in the name then the 
         /// default language specified in the settings will be used
         /// </remarks>
-        public object Handle(string path, DatabaseLogger logger)
+        public object? Handle(string path, DatabaseLogger logger)
         {
             string fileName = System.IO.Path.GetFileNameWithoutExtension(path);
             int splittIndex = fileName.IndexOf('_');
@@ -102,13 +96,13 @@ namespace PXWeb.Database
             System.Text.Encoding encoding = PCAxis.Paxiom.Parsers.PXFileParser.GetEncoding(path);
             string data;
 
-            using (System.IO.StreamReader reader = 
+            using (System.IO.StreamReader reader =
                     new System.IO.StreamReader(
-                        new System.IO.FileStream(path, 
-                                                 System.IO.FileMode.Open, 
-                                                 System.IO.FileAccess.Read, 
-                                                 System.IO.FileShare.Read, 
-                                                 2048), 
+                        new System.IO.FileStream(path,
+                                                 System.IO.FileMode.Open,
+                                                 System.IO.FileAccess.Read,
+                                                 System.IO.FileShare.Read,
+                                                 2048),
                                                 encoding))
             {
                 data = reader.ReadToEnd();
