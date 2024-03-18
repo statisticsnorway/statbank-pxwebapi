@@ -1,13 +1,17 @@
 name: MSBuild
 
-on: push
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   build:
     strategy:
       matrix:
         configuration: [Debug]
-        os: [windows-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -17,13 +21,33 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 6.0.x
+          global-json-file: "./global.json"
 
       - name: Restore dependencies
         run: dotnet restore
+
+      - name: Format code
+        run: dotnet format --severity error --no-restore --verify-no-changes --verbosity normal
 
       - name: Build the application
         run: dotnet build --verbosity normal --no-restore --configuration ${{ matrix.configuration }}
 
       - name: Execute unit tests
         run: dotnet test --verbosity normal
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: false
+          tags: pxtools/pxwebapi:latest

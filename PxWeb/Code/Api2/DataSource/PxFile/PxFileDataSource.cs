@@ -1,15 +1,14 @@
-﻿using System.Collections.Generic;
-using System;
-using System.IO;
+﻿using System.IO;
 using System.Xml;
 using System.Xml.Linq;
+
 using PCAxis.Menu;
 using PCAxis.Menu.Implementations;
 using PCAxis.Paxiom;
-using PCAxis.Sql.DbConfig;
-using Px.Abstractions.Interfaces;
-using PxWeb.Config.Api2;
+
 using Px.Abstractions;
+using Px.Abstractions.Interfaces;
+
 using PxWeb.Mappers;
 
 namespace PxWeb.Code.Api2.DataSource.PxFile
@@ -42,7 +41,7 @@ namespace PxWeb.Code.Api2.DataSource.PxFile
             var builder = new PCAxis.Paxiom.PXFileBuilder();
 
             var path = _tablePathResolver.Resolve(language, id, out bool selectionExists);
-       
+
             if (selectionExists)
             {
                 builder.SetPath(path);
@@ -50,18 +49,23 @@ namespace PxWeb.Code.Api2.DataSource.PxFile
                 return builder;
             }
             else
-            { 
-                return null; 
+            {
+                return null;
             }
         }
 
         public Item? CreateMenu(string id, string language, out bool selectionExists)
         {
-            string xmlFilePath = Path.Combine(_hostingEnvironment.RootPath, "Database", "Menu.xml");
+
+            MenuXmlFile menuXmlFile = new MenuXmlFile(_hostingEnvironment);
+            XmlDocument xmlDocument = menuXmlFile.GetAsXmlDocument();
+
+            var xNavigator = xmlDocument.CreateNavigator();
+            XDocument xDocument = xNavigator != null ? XDocument.Load(xNavigator.ReadSubtree()) : new XDocument();
 
             ItemSelection itmSel = _itemSelectionResolver.Resolve(language, id, out selectionExists);
 
-            XmlMenu menu = new XmlMenu(XDocument.Load(xmlFilePath), language,
+            XmlMenu menu = new XmlMenu(xDocument, language,
                     m =>
                     {
                         m.Restriction = item =>
@@ -73,7 +77,7 @@ namespace PxWeb.Code.Api2.DataSource.PxFile
             menu.SetCurrentItemBySelection(itmSel.Menu, itmSel.Selection);
 
             // Fix selection for subitems - we only want the last part...
-            if (menu.CurrentItem is PxMenuItem) 
+            if (menu.CurrentItem is PxMenuItem)
             {
                 foreach (var item in ((PxMenuItem)(menu.CurrentItem)).SubItems)
                 {
@@ -90,7 +94,7 @@ namespace PxWeb.Code.Api2.DataSource.PxFile
         public Codelist? GetCodelist(string id, string language)
         {
             Codelist? codelist = null;
-            
+
             if (string.IsNullOrEmpty(id))
             {
                 return codelist;

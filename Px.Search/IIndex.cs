@@ -1,12 +1,8 @@
-﻿using PCAxis.Paxiom;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Px.Search
+﻿namespace Px.Search
 {
+    /// <summary>
+    /// SearchEngineWriter
+    /// </summary>
     public interface IIndex : IDisposable
     {
         void BeginWrite(string language);

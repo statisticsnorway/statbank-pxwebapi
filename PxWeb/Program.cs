@@ -1,44 +1,41 @@
+using System.Linq;
+using System.Text;
+
 using AspNetCoreRateLimit;
+
+using log4net;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using PxWeb.Code.Api2;
-using PxWeb.Config.Api2;
-using System.Collections.Generic;
-using System.Linq;
+
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using PxWeb.Filters.Api2;
+
 using Px.Abstractions.Interfaces;
-using PxWeb.Code.Api2.DataSource;
-using PxWeb.Code.Api2.DataSource.Cnmm;
-using PxWeb.Code.Api2.DataSource.PxFile;
-using PxWeb.Helper.Api2;
-using Microsoft.AspNetCore.Mvc;
-using PxWeb.Mappers;
-using Newtonsoft.Json;
-using System;
-using PxWeb.Code.Api2.NewtonsoftConfiguration;
-using PxWeb.Middleware;
-using Px.Search;
-using Px.Search.Lucene;
-using PxWeb.Code.Api2.Cache;
-using System.Text;
+
 using PxWeb.Code;
+using PxWeb.Code.Api2;
+using PxWeb.Code.Api2.Cache;
+using PxWeb.Code.Api2.DataSelection;
+using PxWeb.Code.Api2.DataSource;
+using PxWeb.Code.Api2.NewtonsoftConfiguration;
 using PxWeb.Code.Api2.Serialization;
 using PxWeb.Code.BackgroundWorker;
-using PxWeb.Code.Api2.DataSelection;
-using log4net;
+using PxWeb.Filters.Api2;
+using PxWeb.Helper.Api2;
+using PxWeb.Mappers;
+using PxWeb.Middleware;
 
 
 namespace PxWeb
 {
     public class Program
     {
-        private static ILogger<Program> ?_logger;
-        private static ILog _log = LogManager.GetLogger(typeof(Program));
+        private static ILogger<Program>? _logger;
+        private static readonly ILog _log = LogManager.GetLogger(typeof(Program));
 
         public static void Main(string[] args)
         {
@@ -83,8 +80,8 @@ namespace PxWeb
             builder.Services.Configure<AdminProtectionConfigurationOptions>(builder.Configuration.GetSection("AdminProtection"));
             builder.Services.Configure<CacheMiddlewareConfigurationOptions>(builder.Configuration.GetSection("CacheMiddleware"));
             builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
-            
-            builder.Services.AddTransient<IPxApiConfigurationService, PxApiConfigurationService>();            
+
+            builder.Services.AddTransient<IPxApiConfigurationService, PxApiConfigurationService>();
             builder.Services.AddTransient<IAdminProtectionConfigurationService, AdminProtectionConfigurationService>();
             builder.Services.AddTransient<ICacheMiddlewareConfigurationService, CacheMiddlewareConfigurationService>();
             builder.Services.AddTransient<ILanguageHelper, LanguageHelper>();
@@ -135,9 +132,9 @@ namespace PxWeb
 
             // Handle CORS configuration from appsettings.json
             bool corsEnbled = builder.Services.ConfigurePxCORS(builder, _logger);
-            
+
             var app = builder.Build();
-            
+
             // Configure the HTTP request pipeline.
 
             app.UseSwagger();
@@ -152,11 +149,12 @@ namespace PxWeb
             if (corsEnbled)
             {
                 app.UseCors();
+                app.UseOptions();
             }
 
             if (!app.Environment.IsDevelopment())
             {
-                    app.UseAuthorization();
+                app.UseAuthorization();
 
                 app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/v2/admin"), appBuilder =>
                 {

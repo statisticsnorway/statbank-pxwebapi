@@ -1,18 +1,24 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
+﻿using System.Globalization;
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PCAxis.Paxiom;
+
 using Px.Abstractions.Interfaces;
-using Px.Search;
+
 using PxWeb.Code.Api2.DataSource.PxFile;
-using PxWeb.Config.Api2;
-using PXWeb.Database;
-using Swashbuckle.AspNetCore.Annotations;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using PxWeb.Code.BackgroundWorker;
+
+using PXWeb.Database;
+
+using Swashbuckle.AspNetCore.Annotations;
+
+[assembly: InternalsVisibleTo("PxWebApi.BigTests")]
 
 namespace PxWeb.Controllers.Api2.Admin
 {
@@ -34,7 +40,8 @@ namespace PxWeb.Controllers.Api2.Admin
             _logger = logger;
             _hostingEnvironment = hostingEnvironment;
             _backgroundWorkerQueue = backgroundWorkerQueue;
-            string id = GetType().FullName;
+            Type tempType = GetType();
+            string id = (tempType.FullName != null) ? tempType.FullName : "GetType_has_no_FullName";
             _responseState = stateProvider.Load(id);
         }
 
@@ -53,38 +60,53 @@ namespace PxWeb.Controllers.Api2.Admin
 
             _backgroundWorkerQueue.QueueBackgroundWorkItem(async token =>
             {
-                try
-                {
-                    PXWeb.Database.DatabaseSpider spider;
-                    spider = new PXWeb.Database.DatabaseSpider();
-
-                    spider.ActivateStateLogging(_responseState);
-
-                    spider.Handles.Add(new AliasFileHandler(_configOptions, _logger));
-                    spider.Handles.Add(new LinkFileHandler(_configOptions, _logger));
-                    spider.Handles.Add(new PxFileHandler());
-                    spider.Handles.Add(new MenuSortFileHandler(_configOptions, _logger));
-
-                    List<string> langs = new List<string>();
-                    foreach (Language lang in _configOptions.Languages)
-                    {
-                        langs.Add(lang.Id);
-                    }
-
-                    string sorting = GetSorting(sortOrder);
-                    string databasePath = Path.Combine(_hostingEnvironment.RootPath, "Database");
-
-                    spider.Builders.Add(new MenuBuilder(_configOptions, _logger, _hostingEnvironment, langs.ToArray(), GetLangDependent(langDependent)) { SortOrder = GetSortOrder(sorting) });
-                    spider.Search(databasePath);
-                }
-                catch (System.Exception ex)
-                {
-                    _responseState.AddEvent(new Event("Error", ex.Message));
-                    _logger.LogError(ex.Message);
-                }
+                await createMenuXml(langDependent, sortOrder, token);
             });
 
             return new AcceptedResult();
+        }
+
+
+        internal async Task createMenuXml(bool? langDependent, string? sortOrder, CancellationToken token)
+        {
+            try
+            {
+                var customCulture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+                customCulture.DateTimeFormat.ShortDatePattern = "yyyy-MM-dd";
+                customCulture.DateTimeFormat.LongDatePattern = "yyyy-MM-dd";
+                customCulture.DateTimeFormat.ShortTimePattern = "HH:mm:ss";
+                customCulture.DateTimeFormat.LongTimePattern = "HH:mm:ss";
+
+                Thread.CurrentThread.CurrentCulture = customCulture;
+
+
+                PXWeb.Database.DatabaseSpider spider;
+                spider = new PXWeb.Database.DatabaseSpider();
+
+                await Task.Run(() => spider.ActivateStateLogging(_responseState), token);
+
+                spider.Handles.Add(new AliasFileHandler(_configOptions, _logger));
+                spider.Handles.Add(new LinkFileHandler(_configOptions, _logger));
+                spider.Handles.Add(new PxFileHandler());
+                spider.Handles.Add(new MenuSortFileHandler(_configOptions, _logger));
+
+                List<string> langs = new List<string>();
+                foreach (Language lang in _configOptions.Languages)
+                {
+                    langs.Add(lang.Id);
+                }
+
+                string sorting = GetSorting(sortOrder);
+                string databasePath = Path.Combine(_hostingEnvironment.RootPath, "Database");
+
+                spider.Builders.Add(new MenuBuilder(_configOptions, _logger, _hostingEnvironment, langs.ToArray(), GetLangDependent(langDependent)) { SortOrder = GetSortOrder(sorting) });
+                await Task.Run(() => spider.Search(databasePath), token);
+            }
+            catch (System.Exception ex)
+            {
+                _responseState.AddEvent(new Event("Error", ex.Message));
+                _logger.LogError(ex.Message);
+            }
         }
 
         [HttpGet]
@@ -97,7 +119,7 @@ namespace PxWeb.Controllers.Api2.Admin
             return new JsonResult(_responseState.Data);
         }
 
-        private bool GetLangDependent(bool? langDependent)
+        private static bool GetLangDependent(bool? langDependent)
         {
             if (langDependent == null)
             {
@@ -109,7 +131,7 @@ namespace PxWeb.Controllers.Api2.Admin
             }
         }
 
-        private string GetSorting(string? sortOrder)
+        private static string GetSorting(string? sortOrder)
         {
             if (string.IsNullOrWhiteSpace(sortOrder))
             {

@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using PCAxis.Menu;
-using PCAxis.Paxiom;
-using Px.Search;
+﻿using PCAxis.Menu;
+
 using PxWeb.Api2.Server.Models;
 
 namespace PxWeb.Mappers
