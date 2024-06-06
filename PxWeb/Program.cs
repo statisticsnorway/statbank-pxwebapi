@@ -6,10 +6,12 @@ using AspNetCoreRateLimit;
 using log4net;
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -87,6 +89,7 @@ namespace PxWeb
             builder.Services.AddTransient<ILanguageHelper, LanguageHelper>();
             builder.Services.AddTransient<IFolderResponseMapper, FolderResponseMapper>();
             builder.Services.AddTransient<ITableMetadataResponseMapper, TableMetadataResponseMapper>();
+            builder.Services.AddTransient<IDatasetMapper, DatasetMapper>();
             builder.Services.AddTransient<ITablesResponseMapper, TablesResponseMapper>();
             builder.Services.AddTransient<ITableResponseMapper, TableResponseMapper>();
             builder.Services.AddTransient<IPxHost, PxWebHost>();
@@ -128,22 +131,36 @@ namespace PxWeb
             {
                 // Sort endpoints
                 c.OrderActionsBy((apiDesc) => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.RelativePath}");
+                c.SwaggerDoc("v2", new OpenApiInfo
+                {
+                    Title = "PxWebApi",
+                    Version = "v2-beta"
+                }
+                );
             });
 
 
             // Handle CORS configuration from appsettings.json
             bool corsEnbled = builder.Services.ConfigurePxCORS(builder, _logger);
 
+            // Bind the configuration to the PxApiConfigurationOptions class
+            var pxApiConfiguration = new PxApiConfigurationOptions();
+            builder.Configuration.Bind("PxApiConfiguration", pxApiConfiguration);
+
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            app.UseMiddleware<GlobalRoutePrefixMiddleware>(pxApiConfiguration.RoutePrefix);
+            app.UsePathBase(new PathString(pxApiConfiguration.RoutePrefix));
 
-            app.UseSwagger();
-            app.UseSwaggerUI(options =>
+            // Configure the HTTP request pipeline.
+            if (pxApiConfiguration.EnableSwaggerUI || app.Environment.IsDevelopment())
             {
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", "PxWebApi 2.0");
-                options.RoutePrefix = string.Empty;
-            });
+                app.UseSwagger();
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/swagger/v2/swagger.json", "PxWebApi 2.0-beta");
+                });
+            }
 
             app.UseHttpsRedirection();
 
@@ -157,7 +174,7 @@ namespace PxWeb
             {
                 app.UseAuthorization();
 
-                app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/v2/admin"), appBuilder =>
+                app.UseWhen(context => context.Request.Path.StartsWithSegments(pxApiConfiguration.RoutePrefix + "/admin") || context.Request.Path.StartsWithSegments("/admin"), appBuilder =>
                 {
                     appBuilder.UseAdminProtectionIpWhitelist();
                     appBuilder.UseAdminProtectionKey();
@@ -170,7 +187,7 @@ namespace PxWeb
                 app.UseIpRateLimiting();
             }
 
-            app.UseWhen(context => !context.Request.Path.StartsWithSegments("/api/v2/admin"), appBuilder =>
+            app.UseWhen(context => !context.Request.Path.StartsWithSegments(pxApiConfiguration.RoutePrefix + "/admin") || context.Request.Path.StartsWithSegments("/admin"), appBuilder =>
             {
                 appBuilder.UseCacheMiddleware();
             });
