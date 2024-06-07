@@ -39,6 +39,7 @@ namespace PxWeb.Controllers.Api2
         private readonly IDataSource _dataSource;
         private readonly ILanguageHelper _languageHelper;
         private readonly ITableMetadataResponseMapper _tableMetadataResponseMapper;
+        private readonly IDatasetMapper _datasetMapper;
         private readonly ITablesResponseMapper _tablesResponseMapper;
         private readonly ITableResponseMapper _tableResponseMapper;
         private readonly ICodelistResponseMapper _codelistResponseMapper;
@@ -48,11 +49,12 @@ namespace PxWeb.Controllers.Api2
         private readonly ISelectionHandler _selectionHandler;
         private readonly ISelectionResponseMapper _selectionResponseMapper;
 
-        public TableApiController(IDataSource dataSource, ILanguageHelper languageHelper, ITableMetadataResponseMapper responseMapper, ISearchBackend backend, IOptions<PxApiConfigurationOptions> configOptions, ITablesResponseMapper tablesResponseMapper, ITableResponseMapper tableResponseMapper, ICodelistResponseMapper codelistResponseMapper, ISelectionResponseMapper selectionResponseMapper, ISerializeManager serializeManager, ISelectionHandler selectionHandler)
+        public TableApiController(IDataSource dataSource, ILanguageHelper languageHelper, ITableMetadataResponseMapper responseMapper, IDatasetMapper datasetMapper, ISearchBackend backend, IOptions<PxApiConfigurationOptions> configOptions, ITablesResponseMapper tablesResponseMapper, ITableResponseMapper tableResponseMapper, ICodelistResponseMapper codelistResponseMapper, ISelectionResponseMapper selectionResponseMapper, ISerializeManager serializeManager, ISelectionHandler selectionHandler)
         {
             _dataSource = dataSource;
             _languageHelper = languageHelper;
             _tableMetadataResponseMapper = responseMapper;
+            _datasetMapper = datasetMapper;
             _backend = backend;
             _configOptions = configOptions.Value;
             _tablesResponseMapper = tablesResponseMapper;
@@ -63,12 +65,10 @@ namespace PxWeb.Controllers.Api2
             _selectionResponseMapper = selectionResponseMapper;
         }
 
-
-        public override IActionResult GetMetadataById([FromRoute(Name = "id"), Required] string id, [FromQuery(Name = "lang")] string? lang)
+        public override IActionResult GetMetadataById([FromRoute(Name = "id"), Required] string id, [FromQuery(Name = "lang")] string? lang, [FromQuery(Name = "outputFormat")] MetadataOutputFormatType? outputFormat)
         {
             lang = _languageHelper.HandleLanguage(lang);
             IPXModelBuilder? builder = _dataSource.CreateBuilder(id, lang);
-
 
             if (builder != null)
             {
@@ -77,9 +77,17 @@ namespace PxWeb.Controllers.Api2
                     builder.BuildForSelection();
                     var model = builder.Model;
 
-                    TableMetadataResponse tm = _tableMetadataResponseMapper.Map(model, id, lang);
+                    if (outputFormat != null && outputFormat == MetadataOutputFormatType.Stat2Enum)
+                    {
 
-                    return new ObjectResult(tm);
+                        Dataset ds = _datasetMapper.Map(model, id, lang);
+                        return new ObjectResult(ds);
+                    }
+                    else
+                    {
+                        TableMetadataResponse tm = _tableMetadataResponseMapper.Map(model, id, lang);
+                        return new ObjectResult(tm);
+                    }
                 }
                 catch (Exception)
                 {
@@ -295,6 +303,7 @@ namespace PxWeb.Controllers.Api2
 
 
         }
+
     }
 
 }
