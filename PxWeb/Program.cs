@@ -150,7 +150,7 @@ namespace PxWeb
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
-                    options.SwaggerEndpoint("/swagger/v2/swagger.json", "PxWebApi 2.0-beta");
+                    options.SwaggerEndpoint("../swagger/v2/swagger.json", "PxWebApi 2.0-beta jfi");
                 });
             }
 
