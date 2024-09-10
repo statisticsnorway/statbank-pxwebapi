@@ -157,7 +157,7 @@ namespace PxWeb
                 });
                 app.UseSwaggerUI(options =>
                 {
-                    options.SwaggerEndpoint("/v2/swagger.json", "PxWebApi 2.0-beta jfi");
+                    options.SwaggerEndpoint("../v2/swagger.json", "PxWebApi 2.0-beta jfi");
                     //                    options.SwaggerEndpoint("../v2/swagger.json", "PxWebApi 2.0-beta jfi");
                     options.RoutePrefix = string.Empty;
                 });
