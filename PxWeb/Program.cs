@@ -125,8 +125,8 @@ namespace PxWeb
                 c.OrderActionsBy((apiDesc) => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.RelativePath}");
                 c.SwaggerDoc("v2", new OpenApiInfo
                 {
-                    Title = "PxWebApi",
-                    Version = "v2-beta"
+                    Title = "PxWebApiX",
+                    Version = "v2-betaX"
                 }
                 );
             });
@@ -147,10 +147,19 @@ namespace PxWeb
             // Configure the HTTP request pipeline.
             if (pxApiConfiguration.EnableSwaggerUI || app.Environment.IsDevelopment())
             {
-                app.UseSwagger();
+                app.UseSwagger(c =>
+                {
+                    var lala = c.ToString();
+                    c.RouteTemplate = "/{documentName}/swagger.{extension:regex(^(json|ya?ml)$)}";
+                    // Change the route template  , default:
+                    // {documentName}  is AddSwaggerGen(c ... c.SwaggerDoc("v2",
+                    // /swagger/{documentName}/swagger.{extension:regex(^(json|ya?ml)$)}
+                });
                 app.UseSwaggerUI(options =>
                 {
-                    options.SwaggerEndpoint("../swagger/v2/swagger.json", "PxWebApi 2.0-beta jfi");
+                    options.SwaggerEndpoint("/v2/swagger.json", "PxWebApi 2.0-beta jfi");
+                    //                    options.SwaggerEndpoint("../v2/swagger.json", "PxWebApi 2.0-beta jfi");
+                    options.RoutePrefix = string.Empty;
                 });
             }
 
