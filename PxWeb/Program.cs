@@ -150,7 +150,7 @@ namespace PxWeb
                 app.UseSwagger(c =>
                 {
                     var lala = c.ToString();
-                    c.RouteTemplate = "../swagger/{documentName}/swagger.{extension:regex(^(json|ya?ml)$)}";
+                    //c.RouteTemplate = "../swagger/{documentName}/swagger.{extension:regex(^(json|ya?ml)$)}";
                     // Change the route template  , default:
                     // {documentName}  is AddSwaggerGen(c ... c.SwaggerDoc("v2",
                     // /swagger/{documentName}/swagger.{extension:regex(^(json|ya?ml)$)}
