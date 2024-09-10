@@ -150,7 +150,7 @@ namespace PxWeb
                 app.UseSwagger(c =>
                 {
                     var lala = c.ToString();
-                    c.RouteTemplate = "/{documentName}/swagger.{extension:regex(^(json|ya?ml)$)}";
+                    c.RouteTemplate = "../swagger/{documentName}/swagger.{extension:regex(^(json|ya?ml)$)}";
                     // Change the route template  , default:
                     // {documentName}  is AddSwaggerGen(c ... c.SwaggerDoc("v2",
                     // /swagger/{documentName}/swagger.{extension:regex(^(json|ya?ml)$)}
@@ -158,7 +158,7 @@ namespace PxWeb
                 app.UseSwaggerUI(options =>
                 {
                     //options.SwaggerEndpoint("../v2/swagger.json", "PxWebApi 2.0-beta jfi");
-                    options.SwaggerEndpoint("/swagger/../v2/swagger.json", "PxWebApi 2.0-beta jfi");
+                    options.SwaggerEndpoint("../swagger/v2/swagger.json", "PxWebApi 2.0-beta jfi");
                     //                    options.SwaggerEndpoint("../swagger/v2/swagger.json", "PxWebApi 2.0-beta jfi");
                     options.RoutePrefix = string.Empty;
                 });
