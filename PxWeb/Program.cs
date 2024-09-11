@@ -117,6 +117,17 @@ namespace PxWeb
                 opts.SerializerSettings.DateFormatString = "yyyy-MM-ddTHH:mm:ssZ"; // UTC
             });
 
+
+
+            // Handle CORS configuration from appsettings.json
+            bool corsEnbled = builder.Services.ConfigurePxCORS(builder);
+
+            // Bind the configuration to the PxApiConfigurationOptions class
+            var pxApiConfiguration = new PxApiConfigurationOptions();
+            builder.Configuration.Bind("PxApiConfiguration", pxApiConfiguration);
+            var _Base = pxApiConfiguration.BaseURL;
+
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
@@ -129,15 +140,18 @@ namespace PxWeb
                     Version = "v2-betaX"
                 }
                 );
+
+                if (!pxApiConfiguration.BaseURL.Equals("https://www.pxapi.com/api/v2"))
+                //https://www.pxapi.com/api/v2  is the value at the code repo. 
+                {
+                    c.AddServer(new OpenApiServer
+                    {
+                        Url = pxApiConfiguration.BaseURL,
+                        Description = "API Base URL"
+                    });
+                }
             });
 
-
-            // Handle CORS configuration from appsettings.json
-            bool corsEnbled = builder.Services.ConfigurePxCORS(builder);
-
-            // Bind the configuration to the PxApiConfigurationOptions class
-            var pxApiConfiguration = new PxApiConfigurationOptions();
-            builder.Configuration.Bind("PxApiConfiguration", pxApiConfiguration);
 
             var app = builder.Build();
 
