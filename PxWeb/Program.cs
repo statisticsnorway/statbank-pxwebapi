@@ -125,11 +125,12 @@ namespace PxWeb
             // Bind the configuration to the PxApiConfigurationOptions class
             var pxApiConfiguration = new PxApiConfigurationOptions();
             builder.Configuration.Bind("PxApiConfiguration", pxApiConfiguration);
-            var _Base = pxApiConfiguration.BaseURL;
 
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
+
+            // builder.Services.AddEndpointsApiExplorer(); //only needed for minimal APIS according to
+            // https://learn.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-8.0&tabs=visual-studio 
             builder.Services.AddSwaggerGen(c =>
             {
                 // Sort endpoints
@@ -166,15 +167,16 @@ namespace PxWeb
                     var lala = c.ToString();
                     //c.RouteTemplate = "../swagger/{documentName}/swagger.{extension:regex(^(json|ya?ml)$)}";
                     // Change the route template  , default:
-                    // {documentName}  is AddSwaggerGen(c ... c.SwaggerDoc("v2",
+                    // {documentName} is AddSwaggerGen(c ... c.SwaggerDoc("v2",
                     // /swagger/{documentName}/swagger.{extension:regex(^(json|ya?ml)$)}
                 });
                 app.UseSwaggerUI(options =>
                 {
                     //options.SwaggerEndpoint("../v2/swagger.json", "PxWebApi 2.0-beta jfi");
-                    options.SwaggerEndpoint("../swagger/v2/swagger.json", "PxWebApi 2.0-beta jfi");
-                    //                    options.SwaggerEndpoint("../swagger/v2/swagger.json", "PxWebApi 2.0-beta jfi");
-                    //options.RoutePrefix = string.Empty;
+                    options.SwaggerEndpoint("swagger/v2/swagger.json", "PxWebApi 2.0-beta jfi");
+
+
+                    options.RoutePrefix = string.Empty; //  default is "swagger"
                 });
             }
 
