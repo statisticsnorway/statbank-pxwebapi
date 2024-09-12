@@ -147,7 +147,7 @@ namespace PxWeb
                 {
                     c.AddServer(new OpenApiServer
                     {
-                        Url = pxApiConfiguration.BaseURL,
+                        Url = (new Uri(pxApiConfiguration.BaseURL)).PathAndQuery,
                         Description = "API Base URL"
                     });
                 }
@@ -164,6 +164,7 @@ namespace PxWeb
             {
                 app.UseSwagger(c =>
                 {
+
                     var lala = c.ToString();
                     //c.RouteTemplate = "../swagger/{documentName}/swagger.{extension:regex(^(json|ya?ml)$)}";
                     // Change the route template  , default:
