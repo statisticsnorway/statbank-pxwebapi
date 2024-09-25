@@ -166,7 +166,8 @@ namespace PxWeb
 
             app.UseSwaggerUI(options =>
                 {
-                    options.SwaggerEndpoint("v2/swagger.json", "PxWebApi 2.0-beta");
+                    options.RoutePrefix = string.Empty;
+                    options.SwaggerEndpoint("swagger/v2/swagger.json", "PxWebApi 2.0-beta");
                 });
 
             // Configure the HTTP request pipeline.
@@ -215,9 +216,13 @@ namespace PxWeb
                     throw new Exception("Bad bug");
                 }
                 swaggerDoc.Info = openApiDocument.Info;
-                swaggerDoc.Tags = openApiDocument.Tags;
                 swaggerDoc.Paths = openApiDocument.Paths;
                 swaggerDoc.Components = openApiDocument.Components;
+                swaggerDoc.Tags = openApiDocument.Tags;
+                //swaggerDoc.Servers = openApiDocument.Servers;
+                swaggerDoc.ExternalDocs = openApiDocument.ExternalDocs;
+                //swaggerDoc.SecurityRequirements = openApiDocument.SecurityRequirements;
+                swaggerDoc.Extensions = openApiDocument.Extensions;
             }
         }
 
